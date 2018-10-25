@@ -14,9 +14,15 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <portlet:defineObjects />
 
 <portlet:resourceURL id="getFormEntriesByUser" var="getFormEntriesByUserURL" />
+<portlet:resourceURL id="getFormDefinition" var="getFormDefinition" />
+<portlet:resourceURL id="saveFormEntry" var="saveFormEntry" />
 
 <script type="text/javascript">
-    window.getFormEntriesByUserURL = "<%= getFormEntriesByUserURL %>"
+    window.chatBotConstants = {
+        getFormEntriesByUserURL: "<%= getFormEntriesByUserURL %>",
+        getFormDefinition: "<%= getFormDefinition %>",
+        saveFormEntry: "<%= saveFormEntry %>"
+    }
 </script>
 
 <%
