@@ -25,14 +25,17 @@ import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PrefsParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+
+import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -43,68 +46,20 @@ import javax.portlet.ResourceResponse;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
-
 /**
  * @author Rafael Praxedes
  */
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FormsChatbotWeb,
+		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FORMS_CHATBOT_WEB,
 		"mvc.command.name=getFormEntriesByUser"
 	},
 	service = MVCResourceCommand.class
 )
-public class GetFormEntriesByUserMVCResourceCommand extends BaseMVCResourceCommand {
+public class GetFormEntriesByUserMVCResourceCommand
+	extends BaseMVCResourceCommand {
 
-	@Override
-	protected void doServeResource(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws Exception {
-
-		long formInstanceId = ParamUtil.getLong(resourceRequest, "formInstanceId");
-
-		long userId = portal.getUserId(resourceRequest);
-		
-		List<DDMFormInstanceRecord> formInstanceRecords =
-			ddmFormInstanceRecordLocalService.getFormInstanceRecords(
-				formInstanceId, userId, -1, -1,
-				new DDMFormInstanceRecordModifiedDateComparator());
-		
-		writeResponse(resourceRequest, resourceResponse, formInstanceRecords);
-	}
-	
-	public void writeResponse(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
-			List<DDMFormInstanceRecord> formInstanceRecords)
-		throws Exception {
-
-		JSONArray jsonArray = jsonFactory.createJSONArray();
-		
-		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-		
-		User user = themeDisplay.getUser();
-
-		for (DDMFormInstanceRecord formInstanceRecord : formInstanceRecords) {
-			JSONObject jsonObject = jsonFactory.createJSONObject();
-			
-			jsonObject.put("id", formInstanceRecord.getFormInstanceRecordId());
-			jsonObject.put("status", formInstanceRecord.getStatus());
-			jsonObject.put("statusLabel", formInstanceRecord.getStatus());
-			jsonObject.put(
-				"createDate",
-				formatDate(
-					formInstanceRecord.getCreateDate(), user.getLocale(),
-					user.getTimeZoneId()));
-
-			jsonArray.put(jsonObject);
-		}
-
-		PortletResponseUtil.write(resourceResponse, jsonArray.toJSONString());
-	}
-	
 	public String formatDate(Date date, Locale locale, String timezoneId) {
 		DateTimeFormatter dateTimeFormatter =
 			DateTimeFormatter.ofLocalizedDateTime(
@@ -117,14 +72,63 @@ public class GetFormEntriesByUserMVCResourceCommand extends BaseMVCResourceComma
 
 		return dateTimeFormatter.format(localDateTime);
 	}
-	
+
+	public void writeResponse(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
+			List<DDMFormInstanceRecord> formInstanceRecords)
+		throws Exception {
+
+		JSONArray jsonArray = jsonFactory.createJSONArray();
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		for (DDMFormInstanceRecord formInstanceRecord : formInstanceRecords) {
+			JSONObject jsonObject = jsonFactory.createJSONObject();
+
+			jsonObject.put(
+				"createDate",
+				formatDate(
+					formInstanceRecord.getCreateDate(), user.getLocale(),
+					user.getTimeZoneId()));
+			jsonObject.put("id", formInstanceRecord.getFormInstanceRecordId());
+			jsonObject.put("status", formInstanceRecord.getStatus());
+			jsonObject.put("statusLabel", formInstanceRecord.getStatus());
+
+			jsonArray.put(jsonObject);
+		}
+
+		PortletResponseUtil.write(resourceResponse, jsonArray.toJSONString());
+	}
+
+	@Override
+	protected void doServeResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws Exception {
+
+		long formInstanceId = ParamUtil.getLong(
+			resourceRequest, "formInstanceId");
+
+		long userId = portal.getUserId(resourceRequest);
+
+		List<DDMFormInstanceRecord> formInstanceRecords =
+			ddmFormInstanceRecordLocalService.getFormInstanceRecords(
+				formInstanceId, userId, -1, -1,
+				new DDMFormInstanceRecordModifiedDateComparator());
+
+		writeResponse(resourceRequest, resourceResponse, formInstanceRecords);
+	}
+
+	@Reference
+	protected DDMFormInstanceRecordLocalService
+		ddmFormInstanceRecordLocalService;
+
 	@Reference
 	protected JSONFactory jsonFactory;
 
 	@Reference
 	protected Portal portal;
-
-	@Reference
-	protected DDMFormInstanceRecordLocalService ddmFormInstanceRecordLocalService;
 
 }

@@ -1,12 +1,25 @@
-package forms.chatbot.web.portlet;
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 
-import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
-import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
+package forms.chatbot.web.portlet;
 
 import com.liferay.frontend.js.loader.modules.extender.npm.JSPackage;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
-
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+
+import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
+import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 
 import java.io.IOException;
 
@@ -19,7 +32,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author pedroqueiroz94
+ * @author Pedro Queiroz
  */
 @Component(
 	immediate = true,
@@ -28,7 +41,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.instanceable=true",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
-		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FormsChatbotWeb,
+		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FORMS_CHATBOT_WEB,
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=power-user,user"
 	},

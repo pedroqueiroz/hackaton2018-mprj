@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ChatBot from 'react-simple-chatbot';
 
-const {getFormEntriesByUserURL, getFormDefinition, saveFormEntry} = window.chatBotConstants;
+const {getFormEntriesByUserURL, getFormDefinitionURL, saveFormEntryURL} = window.chatBotConstants;
 
-console.log(getFormEntriesByUserURL, getFormDefinition, saveFormEntry);
+console.log(getFormEntriesByUserURL, getFormDefinitionURL, saveFormEntryURL);
 
 class App extends React.Component {
 	componentWillMount() {
@@ -22,17 +22,17 @@ class App extends React.Component {
 	}
 
 	getFormDefinition() {
-		fetch(getFormDefinition).then(response => {
+		fetch(getFormDefinitionURL).then(response => {
 			response.json().then(() => {
-				console.log(response, 'getFormDefinition');
+				console.log(response, 'getFormDefinitionURL');
 			})
 		}).catch(error => console.log(error));
 	}
 
 	saveFormEntry() {
-		fetch(saveFormEntry).then(response => {
+		fetch(saveFormEntryURL).then(response => {
 			response.json().then(() => {
-				console.log(response, 'saveFormEntry');
+				console.log(response, 'saveFormEntryURL');
 			})
 		}).catch(error => console.log(error));
 	}

@@ -29,7 +29,8 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PrefsParamUtil;
+
+import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
 
 import java.util.Objects;
 
@@ -39,38 +40,20 @@ import javax.portlet.ResourceResponse;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
-
 /**
  * @author Rafael Praxedes
  */
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FormsChatbotWeb,
+		"javax.portlet.name=" + FormsChatbotWebPortletKeys.FORMS_CHATBOT_WEB,
 		"mvc.command.name=getFormDefinition"
 	},
 	service = MVCResourceCommand.class
 )
-public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand {
+public class GetFormDefinitionMVCResourceCommand
+	extends BaseMVCResourceCommand {
 
-	@Override
-	protected void doServeResource(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws Exception {
-
-		long formInstanceId = ParamUtil.getLong(resourceRequest, "formInstanceId");
-
-		DDMFormInstance formInstance = 
-			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);
-
-		DDMStructure structure = formInstance.getStructure();
-
-		DDMForm ddmForm = structure.getDDMForm();
-
-		writeResponse(resourceRequest, resourceResponse, ddmForm);
-	}
-	
 	public void writeResponse(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
 			DDMForm ddmForm)
@@ -82,14 +65,14 @@ public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand 
 			JSONObject jsonObject = jsonFactory.createJSONObject();
 
 			LocalizedValue localizedValue = ddmFormField.getLabel();
-			
+
 			String label = localizedValue.getString(ddmForm.getDefaultLocale());
 
 			jsonObject.put("id", ddmFormField.getName());
 
-			if (Objects.equals(ddmFormField.getType(), "multiple_checkbox")
-					|| Objects.equals(ddmFormField.getType(), "radio")
-					|| Objects.equals(ddmFormField.getType(), "select")) {
+			if (Objects.equals(ddmFormField.getType(), "multiple_checkbox") ||
+				Objects.equals(ddmFormField.getType(), "radio") ||
+				Objects.equals(ddmFormField.getType(), "select")) {
 
 				DDMFormFieldOptions ddmFormFieldOptions =
 					ddmFormField.getDDMFormFieldOptions();
@@ -100,7 +83,8 @@ public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand 
 				jsonObject.put("options", optionsValuesJSONArray);
 
 				for (int i = 0; i < optionsValuesJSONArray.length(); i++) {
-					JSONObject optionJSONObject = jsonFactory.createJSONObject();
+					JSONObject optionJSONObject =
+						jsonFactory.createJSONObject();
 
 					String optionValue = optionsValuesJSONArray.getString(i);
 
@@ -110,12 +94,11 @@ public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand 
 					optionJSONObject.put(
 						"label",
 						optionLabel.getString(ddmForm.getDefaultLocale()));
-					optionJSONObject.put(
-						"value", optionValue);
+
+					optionJSONObject.put("value", optionValue);
 
 					addTrigger(jsonArray, optionJSONObject);
 				}
-				
 			}
 			else {
 				jsonObject.put("message", label);
@@ -130,22 +113,38 @@ public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand 
 	}
 
 	protected void addTrigger(JSONArray jsonArray, JSONObject currentStep) {
-
 		if (jsonArray.length() > 1) {
-			JSONObject previous =
-				jsonArray.getJSONObject(jsonArray.length());
+			JSONObject previous = jsonArray.getJSONObject(jsonArray.length());
 
 			currentStep.put("trigger", previous.get("id"));
 		}
 	}
-	
+
+	@Override
+	protected void doServeResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws Exception {
+
+		long formInstanceId = ParamUtil.getLong(
+			resourceRequest, "formInstanceId");
+
+		DDMFormInstance formInstance =
+			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);
+
+		DDMStructure structure = formInstance.getStructure();
+
+		DDMForm ddmForm = structure.getDDMForm();
+
+		writeResponse(resourceRequest, resourceResponse, ddmForm);
+	}
+
+	@Reference
+	protected DDMFormInstanceLocalService ddmFormInstanceLocalService;
+
 	@Reference
 	protected JSONFactory jsonFactory;
 
 	@Reference
 	protected Portal portal;
-
-	@Reference
-	protected DDMFormInstanceLocalService ddmFormInstanceLocalService;
 
 }
