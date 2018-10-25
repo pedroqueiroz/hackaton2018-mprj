@@ -74,11 +74,10 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		DDMFormField ddmFormField = ddmFormFieldsMap.get(fieldName);
 
-		DDMFormValues fieldDDMFormValues = new DDMFormValues(ddmForm);
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
 
 		DDMFormFieldValue ddmFormFieldValue = new DDMFormFieldValue();
 
-		ddmFormFieldValue.setDDMFormValues(fieldDDMFormValues);
 		ddmFormFieldValue.setName(ddmFormField.getName());
 
 		LocalizedValue value = new LocalizedValue(ddmForm.getDefaultLocale());
@@ -87,7 +86,9 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		ddmFormFieldValue.setValue(value);
 
-		return fieldDDMFormValues;
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+
+		return ddmFormValues;
 	}
 
 	protected ServiceContext createServiceContext(
