@@ -12,6 +12,13 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <liferay-theme:defineObjects />
 
 <portlet:defineObjects />
+
+<portlet:resourceURL id="getFormEntriesByUser" var="getFormEntriesByUserURL" />
+
+<script type="text/javascript">
+    window.getFormEntriesByUserURL = "<%= getFormEntriesByUserURL %>"
+</script>
+
 <%
 String bootstrapRequire = (String)renderRequest.getAttribute(FormsChatbotWebWebKeys.BOOTSTRAP_REQUIRE);
 %>
