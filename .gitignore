@@ -26,3 +26,5 @@ hs_err_pid*
 # folders
 build
 node_modules
+modules/forms-chatbot-web/.project
+modules/forms-chatbot-web/.settings/org.eclipse.jdt.core.prefs
