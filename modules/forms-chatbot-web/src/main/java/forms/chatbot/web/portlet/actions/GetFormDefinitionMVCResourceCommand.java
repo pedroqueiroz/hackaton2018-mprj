@@ -114,7 +114,7 @@ public class GetFormDefinitionMVCResourceCommand
 
 	protected void addTrigger(JSONArray jsonArray, JSONObject currentStep) {
 		if (jsonArray.length() > 1) {
-			JSONObject previous = jsonArray.getJSONObject(jsonArray.length());
+			JSONObject previous = jsonArray.getJSONObject(jsonArray.length() - 1);
 
 			currentStep.put("trigger", previous.get("id"));
 		}
