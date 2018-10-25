@@ -61,7 +61,7 @@ import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
 	},
 	service = MVCResourceCommand.class
 )
-public class GetFormEntriesByUser extends BaseMVCResourceCommand {
+public class GetFormEntriesByUserMVCResourceCommand extends BaseMVCResourceCommand {
 
 	@Override
 	protected void doServeResource(
