@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PrefsParamUtil;
 
@@ -58,9 +59,7 @@ public class GetFormDefinitionMVCResourceCommand extends BaseMVCResourceCommand 
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = PrefsParamUtil.getLong(
-			resourceRequest.getPreferences(), resourceRequest,
-			"formInstanceId");
+		long formInstanceId = ParamUtil.getLong(resourceRequest, "formInstanceId");
 
 		DDMFormInstance formInstance = 
 			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);

@@ -63,9 +63,7 @@ public class GetFormEntriesByUserMVCResourceCommand extends BaseMVCResourceComma
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = PrefsParamUtil.getLong(
-			resourceRequest.getPreferences(), resourceRequest,
-			"formInstanceId");
+		long formInstanceId = ParamUtil.getLong(resourceRequest, "formInstanceId");
 
 		long userId = portal.getUserId(resourceRequest);
 		

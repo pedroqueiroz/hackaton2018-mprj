@@ -13,16 +13,28 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <portlet:defineObjects />
 
-<portlet:resourceURL id="getFormEntriesByUser" var="getFormEntriesByUserURL" />
-<portlet:resourceURL id="getFormDefinition" var="getFormDefinition" />
-<portlet:resourceURL id="saveFormEntry" var="saveFormEntry" />
+<%
+	long formInstanceId = 37408;
+%>
+
+<portlet:resourceURL id="getFormEntriesByUser" var="getFormEntriesByUserURL">
+	<portlet:param name="formInstanceId" value="<%= String.valueOf(formInstanceId) %>" />
+</portlet:resourceURL>
+
+<portlet:resourceURL id="getFormDefinition" var="getFormDefinition">
+	<portlet:param name="formInstanceId" value="<%= String.valueOf(formInstanceId) %>" />
+</portlet:resourceURL>
+
+<portlet:resourceURL id="saveFormEntry" var="saveFormEntry">
+	<portlet:param name="formInstanceId" value="<%= String.valueOf(formInstanceId) %>" />
+</portlet:resourceURL>
 
 <script type="text/javascript">
-    window.chatBotConstants = {
-        getFormEntriesByUserURL: "<%= getFormEntriesByUserURL %>",
-        getFormDefinition: "<%= getFormDefinition %>",
-        saveFormEntry: "<%= saveFormEntry %>"
-    }
+	window.chatBotConstants = {
+		getFormEntriesByUserURL: "<%= getFormEntriesByUserURL %>",
+		getFormDefinition: "<%= getFormDefinition %>",
+		saveFormEntry: "<%= saveFormEntry %>"
+	}
 </script>
 
 <%

@@ -68,9 +68,7 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = PrefsParamUtil.getLong(
-			resourceRequest.getPreferences(), resourceRequest,
-			"formInstanceId");
+		long formInstanceId = ParamUtil.getLong(resourceRequest, "formInstanceId");
 
 		DDMFormInstance formInstance = 
 			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);
