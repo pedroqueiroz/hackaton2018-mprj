@@ -12,69 +12,70 @@ const customClient = {
 }
 
 const theme = {
-background: '#F5F8FB',
-fontFamily: 'Helvetica Neue',
-headerBgColor: '#2E3A49',
-headerFontColor: '#FFF',
-headerFontSize: '16px',
-botBubbleColor: '#007EB4',
-botFontColor: '#FFF !important',
-userBubbleColor: '#FFF !important',
-userFontColor: '#4A4A4A',
+	background: '#F5F8FB',
+	fontFamily: 'Helvetica Neue',
+	headerBgColor: '#105566',
+	headerFontColor: '#FFF',
+	headerFontSize: '16px',
+	botBubbleColor: '#358d98',
+	botFontColor: '#FFF !important',
+	userBubbleColor: '#FFF !important',
+	userFontColor: '#4A4A4A',
 };
 
-class Review extends Component {
+class List extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			steps: []
+			list: []
 		};
 	}
 
 	componentWillMount() {
-		const {steps, mapper} = this.props;
+		this.getFormEntriesByUserURL();
+	}
 
-		const obj = Object.assign([], steps).filter(result => result);
-
-		const result = mapper.map((result, index) => {
-			return {
-				question: result.message,
-				answer: obj[index].value
-			}
-		});
-
-		this.setState({ steps: result });
+	getFormEntriesByUserURL() {
+		fetch(getFormEntriesByUserURL).then(response => {
+			response.json().then(result => {
+				this.setState({list: result});
+			})
+		}).catch(error => console.log(error));
 	}
 
 	render() {
-		const { steps } = this.state;
-
-		if (steps.length === 0) return;
+		const {list} = this.state;
 
 		return (
 			<div style={{ width: '100%' }}>
-				<h3>Summary</h3>
-				<table>
-					<tbody>
-						{steps.map(({question, answer}, index) => (
-							<tr key={index}>
-								<td>{question}</td>
-								<td>{answer}</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<h5>Protocolo das denúncias</h5>
+				<ul style={{
+					margin: 0,
+					padding: 0
+				}}>
+					{list.map(({id, createDate}, index) => (
+						<li style={{
+							listStyle: 'none',
+							borderBottom: '1px solid #e3e3e3',
+							marginTop: '0.5rem',
+							paddingBottom: '0.5rem',
+						}} key={index}>
+							<small>{createDate}</small>
+							<div>{id}</div>
+						</li>
+					))}
+				</ul>
 			</div>
 		);
 	}
 }
 
-Review.propTypes = {
+List.propTypes = {
 	steps: PropTypes.array,
 };
 
-Review.defaultProps = {
+List.defaultProps = {
 	steps: undefined,
 };
 
@@ -89,22 +90,12 @@ class App extends Component {
 	}
 
 	componentWillMount() {
-		this.getFormEntriesByUserURL();
 		this.getFormDefinition();
-		// this.saveFormEntry();
 	}
 
 	componentDidMount() {
 		this.handleEnd = this.handleEnd.bind(this);
 		this.toggle = this.toggle.bind(this);
-	}
-
-	getFormEntriesByUserURL() {
-		fetch(getFormEntriesByUserURL).then(response => {
-			response.json().then(result => {
-				console.log(result, 'getFormEntriesByUserURL');
-			})
-		}).catch(error => console.log(error));
 	}
 
 	getFormDefinition() {
@@ -128,7 +119,7 @@ class App extends Component {
 					{
 						id: 'list',
 						component: (
-							<div>{'denuncias'}</div>
+							<List />
 						),
 						trigger: 'help'
 					},
@@ -138,12 +129,6 @@ class App extends Component {
 							{ value: 'identify', label: 'criar denúncia', trigger: 'go' },
 							{ value: 'list', label: 'listar denúncias', trigger: 'list' }
 						],
-					},
-					{
-						id: 'review',
-						component: <Review />,
-						asMessage: true,
-						trigger: 'update'
 					},
 					{
 						id: 'update',
@@ -204,10 +189,10 @@ class App extends Component {
 	}
 
 	handleEnd({renderedSteps, steps, values}) {
-		const answers = renderedSteps.map(({id, message}) => {
+		const answers = renderedSteps.map(({id, value}) => {
 			return {
 				id,
-				value: message
+				value
 			}
 		});
 
