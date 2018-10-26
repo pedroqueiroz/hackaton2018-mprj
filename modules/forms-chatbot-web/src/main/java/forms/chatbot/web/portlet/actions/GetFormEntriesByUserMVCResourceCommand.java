@@ -14,7 +14,9 @@
 
 package forms.chatbot.web.portlet.actions;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.util.comparator.DDMFormInstanceRecordModifiedDateComparator;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
+import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -108,18 +111,26 @@ public class GetFormEntriesByUserMVCResourceCommand
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = ParamUtil.getLong(
-			resourceRequest, "formInstanceId");
+		String formInstanceUuid = ParamUtil.getString(
+			resourceRequest, "formInstanceUuid",
+			FormsChatbotWebWebKeys.FORMS_UUID);
+
+		DDMFormInstance formInstance =
+			ddmFormInstanceLocalService.fetchDDMFormInstanceByUuidAndGroupId(
+				formInstanceUuid, portal.getScopeGroupId(resourceRequest));
 
 		long userId = portal.getUserId(resourceRequest);
 
 		List<DDMFormInstanceRecord> formInstanceRecords =
 			ddmFormInstanceRecordLocalService.getFormInstanceRecords(
-				formInstanceId, userId, -1, -1,
+				formInstance.getFormInstanceId(), userId, -1, -1,
 				new DDMFormInstanceRecordModifiedDateComparator());
 
 		writeResponse(resourceRequest, resourceResponse, formInstanceRecords);
 	}
+
+	@Reference
+	protected DDMFormInstanceLocalService ddmFormInstanceLocalService;
 
 	@Reference
 	protected DDMFormInstanceRecordLocalService

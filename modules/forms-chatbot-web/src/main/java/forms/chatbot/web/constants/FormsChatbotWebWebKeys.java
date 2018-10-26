@@ -21,4 +21,7 @@ public class FormsChatbotWebWebKeys {
 
 	public static final String BOOTSTRAP_REQUIRE = "BOOTSTRAP_REQUIRE";
 
+	public static final String FORMS_UUID =
+		"8ed4ff72-2c77-0882-4d10-bf18d9d287c0";
+
 }

@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 
 import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
+import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 
 import java.util.Objects;
 
@@ -114,7 +115,8 @@ public class GetFormDefinitionMVCResourceCommand
 
 	protected void addTrigger(JSONArray jsonArray, JSONObject currentStep) {
 		if (jsonArray.length() > 1) {
-			JSONObject previous = jsonArray.getJSONObject(jsonArray.length() - 1);
+			JSONObject previous = jsonArray.getJSONObject(
+				jsonArray.length() - 1);
 
 			currentStep.put("trigger", previous.get("id"));
 		}
@@ -125,11 +127,13 @@ public class GetFormDefinitionMVCResourceCommand
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = ParamUtil.getLong(
-			resourceRequest, "formInstanceId");
+		String formInstanceUuid = ParamUtil.getString(
+			resourceRequest, "formInstanceUuid",
+			FormsChatbotWebWebKeys.FORMS_UUID);
 
 		DDMFormInstance formInstance =
-			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);
+			ddmFormInstanceLocalService.fetchDDMFormInstanceByUuidAndGroupId(
+				formInstanceUuid, portal.getScopeGroupId(resourceRequest));
 
 		DDMStructure structure = formInstance.getStructure();
 
