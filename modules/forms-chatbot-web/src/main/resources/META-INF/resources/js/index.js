@@ -212,39 +212,39 @@ class App extends Component {
 				)
 
 				// create
-				const form = STEPS_FAKE.map(({message}, index, arr) => {
-					if (index === arr.length - 1) {
-						const question = {
-							id: getId(message),
-							message,
-							trigger: `${index}`,
-						}
+				// const form = STEPS_FAKE.map(({message}, index, arr) => {
+				// 	if (index === arr.length - 1) {
+				// 		const question = {
+				// 			id: getId(message),
+				// 			message,
+				// 			trigger: `${index}`,
+				// 		}
 
-						const answer = {
-							id: `${index}`,
-							user: true,
-							trigger: 'review'
-						}
+				// 		const answer = {
+				// 			id: `${index}`,
+				// 			user: true,
+				// 			trigger: 'review'
+				// 		}
 
-						return [question, answer];
-					}
+				// 		return [question, answer];
+				// 	}
 
-					const question = {
-						id: index === 0 ? 'create' : getId(message),
-						message,
-						trigger: `${index}`
-					}
+				// 	const question = {
+				// 		id: index === 0 ? 'create' : getId(message),
+				// 		message,
+				// 		trigger: `${index}`
+				// 	}
 
-					const answer = {
-						id: `${index}`,
-						user: true,
-						trigger: getId(arr[index + 1].message)
-					}
+				// 	const answer = {
+				// 		id: `${index}`,
+				// 		user: true,
+				// 		trigger: getId(arr[index + 1].message)
+				// 	}
 
-					return [question, answer];
-				}).reduce((a, b) => a.concat(b));
+				// 	return [question, answer];
+				// }).reduce((a, b) => a.concat(b));
 
-				mapper.push(...form);
+				mapper.push(...result);
 
 				console.log(mapper);
 
