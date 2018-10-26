@@ -160,7 +160,7 @@ class App extends Component {
 					{
 						id: 'options',
 						options: [
-							{ value: 'identify', label: 'criar denúncia', trigger: 'identify' },
+							{ value: 'identify', label: 'criar denúncia', trigger: 'go' },
 							{ value: 'list', label: 'listar denúncias', trigger: 'list' }
 						],
 					},
@@ -193,78 +193,61 @@ class App extends Component {
 						end: true
 					},
 					{
-						id: 'identify',
-						message: 'Você deseja se identificar? ',
-						trigger: 'options-create'
-					},
-					{
-						id: 'options-create',
-						options: [
-							{ value: 'sim', label: 'sim', trigger: 'go' },
-							{ value: 'não', label: 'não', trigger: 'go' },
-						]
-					},
-					{
 						id: 'go',
 						message: 'Ok, vamos la.',
 						trigger: 'create'
 					}
 				)
 
-				// create
-				// const form = STEPS_FAKE.map(({message}, index, arr) => {
-				// 	if (index === arr.length - 1) {
-				// 		const question = {
-				// 			id: getId(message),
-				// 			message,
-				// 			trigger: `${index}`,
-				// 		}
+				const items = result.map((item, index, arr) => {
+					if (index === 0) {
+						return {
+							id: 'create',
+							message: item.message,
+							trigger: item.trigger
+						}
+					}
 
-				// 		const answer = {
-				// 			id: `${index}`,
-				// 			user: true,
-				// 			trigger: 'review'
-				// 		}
+					if (index === arr.length - 1) {
+						return {
+							id: item.id,
+							user: true,
+							trigger: 'update'
+						}
+					}
 
-				// 		return [question, answer];
-				// 	}
+					return item;
+				});
 
-				// 	const question = {
-				// 		id: index === 0 ? 'create' : getId(message),
-				// 		message,
-				// 		trigger: `${index}`
-				// 	}
+				console.log('items', items);
 
-				// 	const answer = {
-				// 		id: `${index}`,
-				// 		user: true,
-				// 		trigger: getId(arr[index + 1].message)
-				// 	}
-
-				// 	return [question, answer];
-				// }).reduce((a, b) => a.concat(b));
-
-				mapper.push(...result);
-
-				console.log(mapper);
+				mapper.push(...items);
 
 				this.setState({steps: mapper});
 			})
 		}).catch(error => console.log(error));
 	}
 
-	saveFormEntry() {
-		fetch(saveFormEntryURL).then(response => {
-			response.json().then(result => {
-				console.log(result, 'saveFormEntryURL');
-			})
-		}).catch(error => console.log(error));
-	}
 	
 	handleEnd({renderedSteps, steps, values}) {
-		console.log(renderedSteps, steps, values)
+		// console.log('renderedSteps', renderedSteps, 'steps', steps, 'values', values);
 
-		this.setState({opened: false})
+		const answers = renderedSteps.map(({id, message}) => {
+			return {
+				id,
+				value: message
+			}
+		});
+
+		fetch(saveFormEntryURL, {
+			method: 'POST',
+			body: JSON.stringify({answers}),
+			headers:{
+				'Content-Type': 'application/json'
+			}
+		}).then(res => res.json())
+		.then(response => console.log('Success:', JSON.stringify(response)))
+		.catch(error => console.error('Error:', error));
 	}
 
 	toggle({opened}) {
