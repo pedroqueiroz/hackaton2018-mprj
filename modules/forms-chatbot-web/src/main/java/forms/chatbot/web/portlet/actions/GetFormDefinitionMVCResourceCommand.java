@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.Portal;
 import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
 import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 
+import java.util.Map;
 import java.util.Objects;
 
 import javax.portlet.ResourceRequest;
@@ -63,15 +64,25 @@ public class GetFormDefinitionMVCResourceCommand
 		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
-			JSONObject jsonObject = jsonFactory.createJSONObject();
+			JSONObject questionJSONObject = jsonFactory.createJSONObject();
+			JSONObject answerJSONObject = jsonFactory.createJSONObject();
 
 			LocalizedValue localizedValue = ddmFormField.getLabel();
 
 			String label = localizedValue.getString(ddmForm.getDefaultLocale());
 
-			jsonObject.put("id", ddmFormField.getName());
+			String questionId = ddmFormField.getName();
 
-			if (Objects.equals(ddmFormField.getType(), "multiple_checkbox") ||
+			questionJSONObject.put("id", questionId);
+			questionJSONObject.put("message", label);
+
+			String answerId = "answer_" + questionId;
+
+			questionJSONObject.put("trigger", answerId);
+
+			answerJSONObject.put("id", answerId);
+
+			if (Objects.equals(ddmFormField.getType(), "checkbox_multiple") ||
 				Objects.equals(ddmFormField.getType(), "radio") ||
 				Objects.equals(ddmFormField.getType(), "select")) {
 
@@ -81,44 +92,58 @@ public class GetFormDefinitionMVCResourceCommand
 				JSONArray optionsValuesJSONArray =
 					jsonFactory.createJSONArray();
 
-				jsonObject.put("options", optionsValuesJSONArray);
+				Map<String, LocalizedValue> options =
+					ddmFormFieldOptions.getOptions();
 
-				for (int i = 0; i < optionsValuesJSONArray.length(); i++) {
+				answerJSONObject.put("options", optionsValuesJSONArray);
+
+				for (String optionValue : options.keySet()) {
 					JSONObject optionJSONObject =
 						jsonFactory.createJSONObject();
 
-					String optionValue = optionsValuesJSONArray.getString(i);
+					LocalizedValue optionLocalizedValue = options.get(
+						optionValue);
 
-					LocalizedValue optionLabel =
-						ddmFormFieldOptions.getOptionLabels(optionValue);
+					String optionLabel = optionLocalizedValue.getString(
+						ddmForm.getDefaultLocale());
 
-					optionJSONObject.put(
-						"label",
-						optionLabel.getString(ddmForm.getDefaultLocale()));
-
+					optionJSONObject.put("label", optionLabel);
 					optionJSONObject.put("value", optionValue);
 
-					addTrigger(jsonArray, optionJSONObject);
+					optionsValuesJSONArray.put(optionJSONObject);
 				}
 			}
 			else {
-				jsonObject.put("message", label);
-
-				addTrigger(jsonArray, jsonObject);
+				answerJSONObject.put("user", true);
 			}
 
-			jsonArray.put(jsonObject);
+			addTrigger(jsonArray, questionJSONObject);
+
+			jsonArray.put(questionJSONObject);
+			jsonArray.put(answerJSONObject);
 		}
 
 		PortletResponseUtil.write(resourceResponse, jsonArray.toJSONString());
 	}
 
 	protected void addTrigger(JSONArray jsonArray, JSONObject currentStep) {
-		if (jsonArray.length() > 1) {
+		if (jsonArray.length() > 0) {
 			JSONObject previous = jsonArray.getJSONObject(
 				jsonArray.length() - 1);
 
-			currentStep.put("trigger", previous.get("id"));
+			if (previous.has("options")) {
+				JSONArray optionsJSONArray = (JSONArray)previous.get("options");
+
+				for (int i = 0; i < optionsJSONArray.length(); i++) {
+					JSONObject optionJSONObject =
+						optionsJSONArray.getJSONObject(i);
+
+					optionJSONObject.put("trigger", currentStep.get("id"));
+				}
+			}
+			else {
+				previous.put("trigger", currentStep.get("id"));
+			}
 		}
 	}
 
