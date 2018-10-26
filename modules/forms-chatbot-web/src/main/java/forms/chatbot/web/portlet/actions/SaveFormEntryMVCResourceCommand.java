@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,8 @@ import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
 import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 import forms.chatbot.web.util.DefaultDDMFormValuesFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.portlet.ResourceRequest;
@@ -105,15 +108,25 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 			addDDMFormFieldValue(ddmForm, ddmFormValues, fieldName, fieldValue);
 		}
 		else {
-			JSONArray answersJSONArray = jsonFactory.createJSONArray(
-				ParamUtil.getString(resourceRequest, "answers"));
+			InputStream portletInputStream = resourceRequest.getPortletInputStream();
+
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			StreamUtil.transfer(portletInputStream, outputStream);
+
+			String answerString = new String(outputStream.toByteArray());
+
+			JSONObject bodyJSONObject =
+					jsonFactory.createJSONObject(answerString);
+
+			JSONArray answersJSONArray = bodyJSONObject.getJSONArray("answers");
 
 			for (int i = 0; i < answersJSONArray.length(); i++) {
-				JSONObject answer = answersJSONArray.getJSONObject(i);
+				JSONObject answerJSONObject = answersJSONArray.getJSONObject(i);
 
 				addDDMFormFieldValue(
-					ddmForm, ddmFormValues, answer.getString("id"),
-					answer.getString("value"));
+						ddmForm, ddmFormValues, answerJSONObject.getString("id"),
+						answerJSONObject.getString("value"));
 			}
 		}
 
