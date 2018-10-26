@@ -72,6 +72,12 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 		DDMForm ddmForm, DDMFormValues ddmFormValues, String fieldName,
 		String fieldValue) {
 
+		if (!fieldName.startsWith("answer_")) {
+			return;
+		}
+
+		fieldName = fieldName.replace("answer_", "");
+
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(false);
 
