@@ -64,6 +64,10 @@ public class GetFormDefinitionMVCResourceCommand
 		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
+			if (ddmFormField.isTransient()) {
+				continue;
+			}
+			
 			JSONObject questionJSONObject = jsonFactory.createJSONObject();
 			JSONObject answerJSONObject = jsonFactory.createJSONObject();
 
