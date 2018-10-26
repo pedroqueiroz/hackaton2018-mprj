@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import ChatBot from 'react-simple-chatbot';
 import PropTypes from 'prop-types';
 
-const {getFormEntriesByUserURL, getFormDefinitionURL, saveFormEntryURL} = window.chatBotConstants;
+const {getFormEntriesByUserURL, getFormDefinitionURL, portletNamespace, saveFormEntryURL} = window.chatBotConstants;
 
 const customClient = {
 	userAvatar: '/image/user_male_portrait?img_id=37927&img_id_token=%2BRnC9iQPv6%2Fk5V0rVChhd5yGVjw%3D&t=1540522935174',

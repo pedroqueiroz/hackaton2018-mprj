@@ -49,6 +49,7 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 	window.chatBotConstants = {
 		getFormEntriesByUserURL: "<%= getFormEntriesByUserURL %>",
 		getFormDefinitionURL: "<%= getFormDefinitionURL %>",
+		portletNamespace: "<portlet:namespace/>",
 		saveFormEntryURL: "<%= saveFormEntryURL %>"
 	}
 </script>
