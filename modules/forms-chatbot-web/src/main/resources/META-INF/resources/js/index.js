@@ -105,6 +105,8 @@ class App extends Component {
 
 				let mapper = [];
 
+				const date = new Date();
+
 				mapper.push(
 					{
 						id: 'hello',
@@ -126,8 +128,8 @@ class App extends Component {
 					{
 						id: 'options',
 						options: [
-							{ value: 'identify', label: 'criar denúncia', trigger: 'go' },
-							{ value: 'list', label: 'listar denúncias', trigger: 'list' }
+							{ value: 'identify', label: 'Criar denúncia', trigger: 'go' },
+							{ value: 'list', label: 'Acompanhar denúncias', trigger: 'list' },
 						],
 					},
 					{
@@ -144,12 +146,25 @@ class App extends Component {
 					},
 					{
 						id: 'end-message',
-						message: 'Denúncia cadastrada com sucesso!',
-						trigger: 'thank-you'
+						message: `Obrigado, sua denúncia foi enviada com sucesso!\nEsse é o número do seu protocolo: ${date.getTime()}`,
+						trigger: 'available'
+					},
+					{
+						id: 'available',
+						message: 'Como você avalia este chat?',
+						trigger: 'emojis'
+					},
+					{
+						id: 'emojis',
+						options: [
+							{value: 'good', label: '😃', trigger: 'thank-you'},
+							{value: 'normal', label: '🙂', trigger: 'thank-you'},
+							{value: 'bad', label: '🙁', trigger: 'thank-you'}
+						]
 					},
 					{
 						id: 'thank-you',
-						message: 'Obrigado!',
+						message: 'Obrigado pela sua avaliação.',
 						end: true
 					},
 					{
