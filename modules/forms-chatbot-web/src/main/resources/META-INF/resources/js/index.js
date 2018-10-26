@@ -141,7 +141,7 @@ class App extends Component {
 					},
 					{
 						id: 'review',
-						component: <Review mapper={STEPS_FAKE} />,
+						component: <Review />,
 						asMessage: true,
 						trigger: 'update'
 					},
