@@ -205,8 +205,6 @@ class App extends Component {
 
 	
 	handleEnd({renderedSteps, steps, values}) {
-		// console.log('renderedSteps', renderedSteps, 'steps', steps, 'values', values);
-
 		const answers = renderedSteps.map(({id, message}) => {
 			return {
 				id,
@@ -214,15 +212,11 @@ class App extends Component {
 			}
 		});
 
-		const formData = new FormData();
-
-		formData.append('answers', answers);
-
 		fetch(saveFormEntryURL, {
-			method: 'GET',
-			body: formData,
+			method: 'POST',
+			body: JSON.stringify({answers}),
 			headers:{
-				'Content-Type': 'application/x-www-form-urlencoded'
+				'Content-Type': 'application/json'
 			}
 		}).then(res => res.json())
 		.then(response => console.log('Success:', JSON.stringify(response)))
