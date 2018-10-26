@@ -67,7 +67,7 @@ public class GetFormDefinitionMVCResourceCommand
 			if (ddmFormField.isTransient()) {
 				continue;
 			}
-			
+
 			JSONObject questionJSONObject = jsonFactory.createJSONObject();
 			JSONObject answerJSONObject = jsonFactory.createJSONObject();
 

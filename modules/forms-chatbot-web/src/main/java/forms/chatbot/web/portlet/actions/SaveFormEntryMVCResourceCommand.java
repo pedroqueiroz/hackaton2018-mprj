@@ -28,7 +28,9 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -39,6 +41,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import forms.chatbot.web.constants.FormsChatbotWebPortletKeys;
+import forms.chatbot.web.constants.FormsChatbotWebWebKeys;
 import forms.chatbot.web.util.DefaultDDMFormValuesFactory;
 
 import java.util.Map;
@@ -63,18 +66,43 @@ import org.osgi.service.component.annotations.Reference;
 public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 	protected DDMFormValues buildDDMFormValues(
-		ResourceRequest resourceRequest, DDMForm ddmForm) {
+		ResourceRequest resourceRequest, DDMForm ddmForm) throws Exception {
 
 		String fieldName = ParamUtil.getString(resourceRequest, "fieldName");
 
-		String fieldValue = ParamUtil.getString(resourceRequest, "fieldValue");
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		if (Validator.isNotNull(fieldName)) {
+			String fieldValue = ParamUtil.getString(
+				resourceRequest, "fieldValue");
+
+			ddmFormValues.addDDMFormFieldValue(
+				createDDMFormFieldValue(ddmForm, fieldName, fieldValue));
+		}
+		else {
+			JSONArray answersJSONArray = jsonFactory.createJSONArray(
+				ParamUtil.getString(resourceRequest, "answers"));
+
+			for (int i = 0; i < answersJSONArray.length(); i++) {
+				JSONObject answer = answersJSONArray.getJSONObject(i);
+
+				ddmFormValues.addDDMFormFieldValue(
+					createDDMFormFieldValue(
+						ddmForm, answer.getString("id"),
+						answer.getString("value")));
+			}
+		}
+
+		return ddmFormValues;
+	}
+
+	protected DDMFormFieldValue createDDMFormFieldValue(
+		DDMForm ddmForm, String fieldName, String fieldValue) {
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(false);
 
 		DDMFormField ddmFormField = ddmFormFieldsMap.get(fieldName);
-
-		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
 
 		DDMFormFieldValue ddmFormFieldValue = new DDMFormFieldValue();
 
@@ -86,7 +114,32 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		ddmFormFieldValue.setValue(value);
 
-		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+		return ddmFormFieldValue;
+	}
+
+	protected DDMFormValues createDDMFormValues(
+			ResourceRequest resourceRequest, DDMForm ddmForm,
+			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
+		throws Exception {
+
+		DDMFormValues ddmFormValues = null;
+
+		DDMFormValues newDDMFormValues = buildDDMFormValues(
+			resourceRequest, ddmForm);
+
+		if (ddmFormInstanceRecordVersion != null) {
+			ddmFormValues = ddmFormValuesMerger.merge(
+				newDDMFormValues,
+				ddmFormInstanceRecordVersion.getDDMFormValues());
+		}
+		else {
+			DefaultDDMFormValuesFactory ddmFormValuesFactory =
+				new DefaultDDMFormValuesFactory(
+					ddmForm, ddmForm.getDefaultLocale());
+
+			ddmFormValues = ddmFormValuesMerger.merge(
+				newDDMFormValues, ddmFormValuesFactory.create());
+		}
 
 		return ddmFormValues;
 	}
@@ -110,11 +163,13 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
 
-		long formInstanceId = ParamUtil.getLong(
-			resourceRequest, "formInstanceId");
+		String formInstanceUuid = ParamUtil.getString(
+			resourceRequest, "formInstanceUuid",
+			FormsChatbotWebWebKeys.FORMS_UUID);
 
 		DDMFormInstance formInstance =
-			ddmFormInstanceLocalService.fetchDDMFormInstance(formInstanceId);
+			ddmFormInstanceLocalService.fetchDDMFormInstanceByUuidAndGroupId(
+				formInstanceUuid, portal.getScopeGroupId(resourceRequest));
 
 		DDMStructure structure = formInstance.getStructure();
 
@@ -123,14 +178,14 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 		DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion =
 			ddmFormInstanceRecordVersionLocalService.
 				fetchLatestFormInstanceRecordVersion(
-					portal.getUserId(resourceRequest), formInstanceId,
-					formInstance.getVersion(), WorkflowConstants.STATUS_DRAFT);
-
-		String fieldName = ParamUtil.getString(resourceRequest, "fieldName");
+					portal.getUserId(resourceRequest),
+					formInstance.getFormInstanceId(), formInstance.getVersion(),
+					WorkflowConstants.STATUS_DRAFT);
 
 		long userId = portal.getUserId(resourceRequest);
 
-		if (Validator.isNull(fieldName) &&
+		if (Validator.isNull(
+				ParamUtil.getString(resourceRequest, "fieldName")) &&
 			(ddmFormInstanceRecordVersion != null)) {
 
 			ddmFormInstanceRecordLocalService.updateStatus(
@@ -141,32 +196,17 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 					DDMFormInstanceRecord.class.getName(), resourceRequest));
 		}
 		else {
-			DDMFormValues ddmFormValues = null;
-
-			DDMFormValues newDDMFormValues = buildDDMFormValues(
-				resourceRequest, ddmForm);
-
-			if (ddmFormInstanceRecordVersion != null) {
-				ddmFormValues = ddmFormValuesMerger.merge(
-					newDDMFormValues,
-					ddmFormInstanceRecordVersion.getDDMFormValues());
-			}
-			else {
-				DefaultDDMFormValuesFactory ddmFormValuesFactory =
-					new DefaultDDMFormValuesFactory(
-						ddmForm, ddmForm.getDefaultLocale());
-
-				ddmFormValues = ddmFormValuesMerger.merge(
-					newDDMFormValues, ddmFormValuesFactory.create());
-			}
+			DDMFormValues ddmFormValues = createDDMFormValues(
+				resourceRequest, ddmForm, ddmFormInstanceRecordVersion);
 
 			ServiceContext serviceContext = createServiceContext(
 				resourceRequest);
 
 			if (ddmFormInstanceRecordVersion == null) {
 				ddmFormInstanceRecordLocalService.addFormInstanceRecord(
-					userId, formInstance.getGroupId(), formInstanceId,
-					ddmFormValues, serviceContext);
+					userId, formInstance.getGroupId(),
+					formInstance.getFormInstanceId(), ddmFormValues,
+					serviceContext);
 			}
 			else {
 				ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
