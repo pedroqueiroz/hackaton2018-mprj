@@ -7,8 +7,7 @@ import PropTypes from 'prop-types';
 const {getFormEntriesByUserURL, getFormDefinitionURL, portletNamespace, saveFormEntryURL} = window.chatBotConstants;
 
 const customClient = {
-	userAvatar: '/image/user_male_portrait?img_id=37927&img_id_token=%2BRnC9iQPv6%2Fk5V0rVChhd5yGVjw%3D&t=1540522935174',
-	botAvatar: 'https://www.novaconcursos.com.br/portal/wp-content/uploads/2015/08/MPRJ_logo1.jpg',
+	botAvatar: 'https://i.imgur.com/rTo045S.png',
 	title: 'Ouvidoria - MPRJ'
 }
 
@@ -22,30 +21,6 @@ const theme = {
   botFontColor: '#FFF !important',
   userBubbleColor: '#FFF !important',
   userFontColor: '#4A4A4A',
-};
-
-
-const STEPS_FAKE = [
-	{
-		message: "Classificação da Comunicação"
-	},
-	{
-		message: "Identificação"
-	},
-	{
-		message: "CPF"
-	},
-	{
-		message: "Data de Nascimento"
-	}
-];
-
-const getId = message => {
-	if (!message) {
-		return 'empty'
-	} else {
-		return message.replace(/\s/g,'').toLowerCase();
-	}
 };
 
 class Review extends Component {
@@ -239,11 +214,15 @@ class App extends Component {
 			}
 		});
 
+		const formData = new FormData();
+
+		formData.append('answers', answers);
+
 		fetch(saveFormEntryURL, {
-			method: 'POST',
-			body: JSON.stringify({answers}),
+			method: 'GET',
+			body: formData,
 			headers:{
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/x-www-form-urlencoded'
 			}
 		}).then(res => res.json())
 		.then(response => console.log('Success:', JSON.stringify(response)))
