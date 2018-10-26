@@ -15,10 +15,10 @@ const customClient = {
 const theme = {
   background: '#F5F8FB',
   fontFamily: 'Helvetica Neue',
-  headerBgColor: '#A82229',
+  headerBgColor: '#2E3A49',
   headerFontColor: '#FFF',
   headerFontSize: '16px',
-  botBubbleColor: '#464646',
+  botBubbleColor: '#007EB4',
   botFontColor: '#FFF !important',
   userBubbleColor: '#FFF !important',
   userFontColor: '#4A4A4A',
