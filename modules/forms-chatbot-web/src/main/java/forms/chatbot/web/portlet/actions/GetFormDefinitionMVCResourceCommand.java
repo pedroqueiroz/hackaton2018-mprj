@@ -91,6 +91,7 @@ public class GetFormDefinitionMVCResourceCommand
 			String questionId = ddmFormField.getName();
 
 			questionJSONObject.put("id", questionId);
+
 			questionJSONObject.put("message", label);
 
 			String answerId = "answer_" + questionId;
@@ -125,6 +126,7 @@ public class GetFormDefinitionMVCResourceCommand
 						ddmForm.getDefaultLocale());
 
 					optionJSONObject.put("label", optionLabel);
+
 					optionJSONObject.put("value", optionValue);
 
 					optionsValuesJSONArray.put(optionJSONObject);

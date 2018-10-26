@@ -47,7 +47,9 @@ import forms.chatbot.web.util.DefaultDDMFormValuesFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+
 import java.util.Map;
+import java.util.Objects;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
@@ -83,7 +85,7 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		DDMFormField ddmFormField = ddmFormFieldsMap.get(fieldName);
 
-		if (ddmFormField == null || ddmFormField.isTransient()) {
+		if ((ddmFormField == null) || ddmFormField.isTransient()) {
 			return;
 		}
 
@@ -112,7 +114,8 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 	}
 
 	protected DDMFormValues buildDDMFormValues(
-		ResourceRequest resourceRequest, DDMForm ddmForm) throws Exception {
+			ResourceRequest resourceRequest, DDMForm ddmForm)
+		throws Exception {
 
 		String fieldName = ParamUtil.getString(resourceRequest, "fieldName");
 
@@ -125,7 +128,8 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 			addDDMFormFieldValue(ddmForm, ddmFormValues, fieldName, fieldValue);
 		}
 		else {
-			InputStream portletInputStream = resourceRequest.getPortletInputStream();
+			InputStream portletInputStream =
+				resourceRequest.getPortletInputStream();
 
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -133,8 +137,8 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 			String answerString = new String(outputStream.toByteArray());
 
-			JSONObject bodyJSONObject =
-					jsonFactory.createJSONObject(answerString);
+			JSONObject bodyJSONObject = jsonFactory.createJSONObject(
+				answerString);
 
 			JSONArray answersJSONArray = bodyJSONObject.getJSONArray("answers");
 
@@ -142,8 +146,8 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 				JSONObject answerJSONObject = answersJSONArray.getJSONObject(i);
 
 				addDDMFormFieldValue(
-						ddmForm, ddmFormValues, answerJSONObject.getString("id"),
-						answerJSONObject.getString("value"));
+					ddmForm, ddmFormValues, answerJSONObject.getString("id"),
+					answerJSONObject.getString("value"));
 			}
 		}
 
@@ -184,7 +188,8 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			DDMFormInstanceRecord.class.getName(), resourceRequest);
 
-		serviceContext.setAttribute("status", WorkflowConstants.STATUS_DRAFT);
+		serviceContext.setAttribute(
+			"status", WorkflowConstants.STATUS_APPROVED);
 		serviceContext.setAttribute("validateDDMFormValues", Boolean.FALSE);
 		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_SAVE_DRAFT);
 
@@ -217,37 +222,37 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		long userId = portal.getUserId(resourceRequest);
 
-		if (Validator.isNull(
-				ParamUtil.getString(resourceRequest, "fieldName")) &&
-			(ddmFormInstanceRecordVersion != null)) {
+		DDMFormValues ddmFormValues = createDDMFormValues(
+			resourceRequest, ddmForm, ddmFormInstanceRecordVersion);
 
-			ddmFormInstanceRecordLocalService.updateStatus(
-				userId,
-				ddmFormInstanceRecordVersion.getFormInstanceRecordVersionId(),
-				WorkflowConstants.STATUS_APPROVED,
-				ServiceContextFactory.getInstance(
-					DDMFormInstanceRecord.class.getName(), resourceRequest));
-		}
-		else {
-			DDMFormValues ddmFormValues = createDDMFormValues(
-				resourceRequest, ddmForm, ddmFormInstanceRecordVersion);
+		ServiceContext serviceContext = createServiceContext(resourceRequest);
 
-			ServiceContext serviceContext = createServiceContext(
-				resourceRequest);
+		DDMFormInstanceRecord ddmFormInstanceRecord;
 
-			if (ddmFormInstanceRecordVersion == null) {
+		if (ddmFormInstanceRecordVersion == null) {
+			ddmFormInstanceRecord =
 				ddmFormInstanceRecordLocalService.addFormInstanceRecord(
 					userId, formInstance.getGroupId(),
 					formInstance.getFormInstanceId(), ddmFormValues,
 					serviceContext);
-			}
-			else {
+		}
+		else {
+			ddmFormInstanceRecord =
 				ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
 					userId,
 					ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
 					false, ddmFormValues, serviceContext);
-			}
 		}
+
+		ddmFormInstanceRecordVersion =
+			ddmFormInstanceRecord.getFormInstanceRecordVersion();
+
+		ddmFormInstanceRecordLocalService.updateStatus(
+			userId,
+			ddmFormInstanceRecordVersion.getFormInstanceRecordVersionId(),
+			WorkflowConstants.STATUS_APPROVED,
+			ServiceContextFactory.getInstance(
+				DDMFormInstanceRecord.class.getName(), resourceRequest));
 	}
 
 	@Reference

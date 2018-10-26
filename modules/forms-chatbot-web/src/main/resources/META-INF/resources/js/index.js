@@ -12,15 +12,15 @@ const customClient = {
 }
 
 const theme = {
-  background: '#F5F8FB',
-  fontFamily: 'Helvetica Neue',
-  headerBgColor: '#2E3A49',
-  headerFontColor: '#FFF',
-  headerFontSize: '16px',
-  botBubbleColor: '#007EB4',
-  botFontColor: '#FFF !important',
-  userBubbleColor: '#FFF !important',
-  userFontColor: '#4A4A4A',
+background: '#F5F8FB',
+fontFamily: 'Helvetica Neue',
+headerBgColor: '#2E3A49',
+headerFontColor: '#FFF',
+headerFontSize: '16px',
+botBubbleColor: '#007EB4',
+botFontColor: '#FFF !important',
+userBubbleColor: '#FFF !important',
+userFontColor: '#4A4A4A',
 };
 
 class Review extends Component {
@@ -203,7 +203,6 @@ class App extends Component {
 		}).catch(error => console.log(error));
 	}
 
-	
 	handleEnd({renderedSteps, steps, values}) {
 		const answers = renderedSteps.map(({id, message}) => {
 			return {
