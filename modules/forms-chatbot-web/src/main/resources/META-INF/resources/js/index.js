@@ -8,19 +8,20 @@ const {getFormEntriesByUserURL, getFormDefinitionURL, saveFormEntryURL} = window
 
 const customClient = {
 	userAvatar: '/image/user_male_portrait?img_id=37927&img_id_token=%2BRnC9iQPv6%2Fk5V0rVChhd5yGVjw%3D&t=1540522935174',
-	botAvatar: 'https://www.novaconcursos.com.br/portal/wp-content/uploads/2015/08/MPRJ_logo1.jpg'
+	botAvatar: 'https://www.novaconcursos.com.br/portal/wp-content/uploads/2015/08/MPRJ_logo1.jpg',
+	title: 'Ouvidoria - MPRJ'
 }
 
 const theme = {
-  background: '#f5f8fb',
+  background: '#F5F8FB',
   fontFamily: 'Helvetica Neue',
   headerBgColor: '#A82229',
-  headerFontColor: '#fff',
+  headerFontColor: '#FFF',
   headerFontSize: '16px',
-  botBubbleColor: '#A82229',
-  botFontColor: '#fff !important',
-  userBubbleColor: '#fff !important',
-  userFontColor: '#4a4a4a',
+  botBubbleColor: '#464646',
+  botFontColor: '#FFF !important',
+  userBubbleColor: '#FFF !important',
+  userFontColor: '#4A4A4A',
 };
 
 
@@ -108,7 +109,7 @@ class App extends Component {
 
 		this.state = {
 			steps: [],
-			opened: false
+			opened: true
 		}
 	}
 
@@ -141,12 +142,12 @@ class App extends Component {
 				mapper.push(
 					{
 						id: 'hello',
-						message: 'Olá, sou seu assistente virtual do MPRJ',
+						message: 'Olá! Bem-vindo à ouvidoria do MPRJ.',
 						trigger: 'help'
 					},
 					{
 						id: 'help',
-						message: 'Posso te ajudar em algo?',
+						message: 'O que você gostaria de fazer hoje?',
 						trigger: 'options'
 					},
 					{
@@ -159,7 +160,7 @@ class App extends Component {
 					{
 						id: 'options',
 						options: [
-							{ value: 'create', label: 'criar denúncia', trigger: 'create' },
+							{ value: 'identify', label: 'criar denúncia', trigger: 'identify' },
 							{ value: 'list', label: 'listar denúncias', trigger: 'list' }
 						],
 					},
@@ -190,6 +191,23 @@ class App extends Component {
 						id: 'thank-you',
 						message: 'Obrigado!',
 						end: true
+					},
+					{
+						id: 'identify',
+						message: 'Você deseja se identificar? ',
+						trigger: 'options-create'
+					},
+					{
+						id: 'options-create',
+						options: [
+							{ value: 'sim', label: 'sim', trigger: 'go' },
+							{ value: 'não', label: 'não', trigger: 'go' },
+						]
+					},
+					{
+						id: 'go',
+						message: 'Ok, vamos la.',
+						trigger: 'create'
 					}
 				)
 
@@ -255,9 +273,7 @@ class App extends Component {
 
 	render() {
 		const {steps, opened} = this.state;
-		const {botAvatar, userAvatar} = customClient;
-
-		console.log('STEPS', steps);
+		const {botAvatar} = customClient;
 
 		if (steps.length === 0) return <div/>;
 
@@ -270,8 +286,8 @@ class App extends Component {
 					floating
 					steps={steps}
 					botAvatar={botAvatar}
-					userAvatar={userAvatar}
 					toggleFloating={this.toggle}
+					headerTitle={customClient.title}
 				/>
 			</ThemeProvider>
 		);

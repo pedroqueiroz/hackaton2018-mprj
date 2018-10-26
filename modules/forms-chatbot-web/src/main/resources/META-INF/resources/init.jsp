@@ -30,7 +30,7 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <portlet:defineObjects />
 
 <%
-	long formInstanceId = 37408;
+	long formInstanceId = 37640;
 %>
 
 <portlet:resourceURL id="getFormEntriesByUser" var="getFormEntriesByUserURL">
