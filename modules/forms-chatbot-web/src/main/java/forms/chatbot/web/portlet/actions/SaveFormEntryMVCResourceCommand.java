@@ -93,6 +93,17 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		LocalizedValue value = new LocalizedValue(ddmForm.getDefaultLocale());
 
+		if (Objects.equals(ddmFormField.getType(), "checkbox_multiple") ||
+			Objects.equals(ddmFormField.getType(), "radio") ||
+			Objects.equals(ddmFormField.getType(), "select")) {
+
+			JSONArray jsonArray = jsonFactory.createJSONArray();
+
+			jsonArray.put(fieldValue);
+
+			fieldValue = jsonArray.toString();
+		}
+
 		value.addString(ddmForm.getDefaultLocale(), fieldValue);
 
 		ddmFormFieldValue.setValue(value);
