@@ -65,44 +65,18 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
-	protected DDMFormValues buildDDMFormValues(
-		ResourceRequest resourceRequest, DDMForm ddmForm) throws Exception {
-
-		String fieldName = ParamUtil.getString(resourceRequest, "fieldName");
-
-		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
-
-		if (Validator.isNotNull(fieldName)) {
-			String fieldValue = ParamUtil.getString(
-				resourceRequest, "fieldValue");
-
-			ddmFormValues.addDDMFormFieldValue(
-				createDDMFormFieldValue(ddmForm, fieldName, fieldValue));
-		}
-		else {
-			JSONArray answersJSONArray = jsonFactory.createJSONArray(
-				ParamUtil.getString(resourceRequest, "answers"));
-
-			for (int i = 0; i < answersJSONArray.length(); i++) {
-				JSONObject answer = answersJSONArray.getJSONObject(i);
-
-				ddmFormValues.addDDMFormFieldValue(
-					createDDMFormFieldValue(
-						ddmForm, answer.getString("id"),
-						answer.getString("value")));
-			}
-		}
-
-		return ddmFormValues;
-	}
-
-	protected DDMFormFieldValue createDDMFormFieldValue(
-		DDMForm ddmForm, String fieldName, String fieldValue) {
+	protected void addDDMFormFieldValue(
+		DDMForm ddmForm, DDMFormValues ddmFormValues, String fieldName,
+		String fieldValue) {
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(false);
 
 		DDMFormField ddmFormField = ddmFormFieldsMap.get(fieldName);
+
+		if (ddmFormField == null || ddmFormField.isTransient()) {
+			return;
+		}
 
 		DDMFormFieldValue ddmFormFieldValue = new DDMFormFieldValue();
 
@@ -114,7 +88,36 @@ public class SaveFormEntryMVCResourceCommand extends BaseMVCResourceCommand {
 
 		ddmFormFieldValue.setValue(value);
 
-		return ddmFormFieldValue;
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+	}
+
+	protected DDMFormValues buildDDMFormValues(
+		ResourceRequest resourceRequest, DDMForm ddmForm) throws Exception {
+
+		String fieldName = ParamUtil.getString(resourceRequest, "fieldName");
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		if (Validator.isNotNull(fieldName)) {
+			String fieldValue = ParamUtil.getString(
+				resourceRequest, "fieldValue");
+
+			addDDMFormFieldValue(ddmForm, ddmFormValues, fieldName, fieldValue);
+		}
+		else {
+			JSONArray answersJSONArray = jsonFactory.createJSONArray(
+				ParamUtil.getString(resourceRequest, "answers"));
+
+			for (int i = 0; i < answersJSONArray.length(); i++) {
+				JSONObject answer = answersJSONArray.getJSONObject(i);
+
+				addDDMFormFieldValue(
+					ddmForm, ddmFormValues, answer.getString("id"),
+					answer.getString("value"));
+			}
+		}
+
+		return ddmFormValues;
 	}
 
 	protected DDMFormValues createDDMFormValues(
