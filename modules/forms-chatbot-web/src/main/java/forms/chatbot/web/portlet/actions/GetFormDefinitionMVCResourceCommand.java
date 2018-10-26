@@ -148,6 +148,12 @@ public class GetFormDefinitionMVCResourceCommand
 			JSONObject previous = jsonArray.getJSONObject(
 				jsonArray.length() - 1);
 
+			String trigger = (String)currentStep.get("id");
+
+			if (Objects.equals(previous.get("id"), "answer_Identificação")) {
+				trigger = "OndeAconteceu";
+			}
+
 			if (previous.has("options")) {
 				JSONArray optionsJSONArray = (JSONArray)previous.get("options");
 
@@ -155,7 +161,7 @@ public class GetFormDefinitionMVCResourceCommand
 					JSONObject optionJSONObject =
 						optionsJSONArray.getJSONObject(i);
 
-					optionJSONObject.put("trigger", currentStep.get("id"));
+					optionJSONObject.put("trigger", trigger);
 				}
 			}
 			else {
