@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 
@@ -64,7 +65,19 @@ public class GetFormDefinitionMVCResourceCommand
 		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
-			if (ddmFormField.isTransient()) {
+			if (Objects.equals(ddmFormField.getType(), "paragraph")) {
+				JSONObject talkJSONObject = jsonFactory.createJSONObject();
+
+				talkJSONObject.put("id", ddmFormField.getName());
+				talkJSONObject.put(
+					"message",
+					HtmlUtil.extractText(
+						String.valueOf(ddmFormField.getProperty("text"))));
+
+				addTrigger(jsonArray, talkJSONObject);
+
+				jsonArray.put(talkJSONObject);
+
 				continue;
 			}
 
