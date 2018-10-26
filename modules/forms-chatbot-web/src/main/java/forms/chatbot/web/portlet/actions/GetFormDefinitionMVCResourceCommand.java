@@ -151,7 +151,7 @@ public class GetFormDefinitionMVCResourceCommand
 			String trigger = (String)currentStep.get("id");
 
 			if (Objects.equals(previous.get("id"), "answer_Identificação")) {
-				trigger = "OndeAconteceu";
+				trigger = "Pagina3";
 			}
 
 			if (previous.has("options")) {
